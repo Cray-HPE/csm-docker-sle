@@ -1,0 +1,46 @@
+@Library('csm-shared-library@main') _
+
+def isStable = env.TAG_NAME != null || env.BRANCH_NAME == 'main' ? true : false
+pipeline {
+    agent {
+        label "metal-gcp-builder"
+    }
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: "1"))
+        timestamps()
+    }
+
+    environment {
+        DESCRIPTION = "CRAY System Management SLE Server Build Image"
+        DOCKER_ARGS = getDockerBuildArgs(name: env.NAME, description: env.DESCRIPTION)
+        DOCKER_BUILDKIT = 1
+        NAME = "csm-docker-sle"
+        SLES_VERSION = sh(returnStdout: true, script: "awk -F ':' '/^FROM/{print \$NF; exit}' Dockerfile | awk '{print \$1}'").trim()
+        VERSION = "${GIT_COMMIT[0..6]}"
+    }
+
+    stages {
+
+        stage('Build') {
+            steps {
+                withCredentials([
+                    string(credentialsId: 'sles15-registration-code', variable: 'SLES_REGISTRATION_CODE')
+                ]) {
+                    sh "make image"
+                }
+            }
+        }
+
+        stage('Publish') {
+            steps {
+                script {
+                    publishCsmDockerImage(image: env.NAME, tag: env.VERSION, isStable: isStable)
+                    publishCsmDockerImage(image: env.NAME, tag: env.SLES_VERSION, isStable: isStable)
+                    publishCsmDockerImage(image: env.NAME, tag: "latest", isStable: isStable)
+                }
+            }
+        }
+
+    }
+}
