@@ -33,5 +33,5 @@ The version is controlled by the `Dockerfile`. Each image built and pushed to Ar
 - A short Git hash
 - The SLES Version from the `Dockerfile`
 
-Update the `Dockerfile` with a new tag provided from https://registry.suse.com/.
+To use a newer version of SLE, update the `Dockerfile` with a new tag provided from [https://registry.suse.com/](https://registry.suse.com).
 
