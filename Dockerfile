@@ -66,6 +66,7 @@ RUN zypper refresh \
         which \
         xz-devel \
         zlib-devel \
-        && zypper clean -a
+        && zypper clean -a \
+        && SUSEConnect --cleanup
 
-RUN SUSEConnect --cleanup
+WORKDIR /build
