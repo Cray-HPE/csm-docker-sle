@@ -27,11 +27,12 @@ ARG uid=10000
 ARG gid=10000
 
 ENV HOME /home/${user}
-RUN groupadd -g ${gid} ${group} && useradd -c "Jenkins USER" -d $HOME -u ${uid} -g ${gid} -m ${user}
+RUN groupadd -g ${gid} ${group} && useradd -l -c "Jenkins USER" -d $HOME -u ${uid} -g ${gid} -m ${user}
 
-RUN zypper --non-interactive install --no-recommends --force-resolution SUSEConnect
+RUN zypper --non-interactive install --no-recommends --force-resolution SUSEConnect \
+    && zypper clean -a
 
-RUN --mount=type=secret,id=SLES_REGISTRATION_CODE SUSEConnect -r $(cat /run/secrets/SLES_REGISTRATION_CODE)
+RUN --mount=type=secret,id=SLES_REGISTRATION_CODE SUSEConnect -r "$(cat /run/secrets/SLES_REGISTRATION_CODE)"
 CMD ["/bin/bash"]
 FROM base as product
 
@@ -64,6 +65,7 @@ RUN zypper refresh \
         vim \
         which \
         xz-devel \
-        zlib-devel
+        zlib-devel \
+        && zypper clean -a
 
 RUN SUSEConnect --cleanup
