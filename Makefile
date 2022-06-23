@@ -29,4 +29,3 @@ all: image
 image:
 	docker build --secret id=SLES_REGISTRATION_CODE --pull ${DOCKER_ARGS} --tag '${NAME}:${VERSION}' .
 	docker tag '${NAME}:${VERSION}' ${NAME}:${SLES_VERSION}
-	docker tag '${NAME}:${VERSION}' ${NAME}:latest
