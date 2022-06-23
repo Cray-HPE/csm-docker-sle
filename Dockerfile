@@ -19,7 +19,7 @@
 # OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
-FROM registry.suse.com/suse/sle15:15.3 AS base
+FROM registry.suse.com/suse/sle15:15.2 AS base
 
 ARG user=jenkins
 ARG group=jenkins
@@ -29,10 +29,19 @@ ARG gid=10000
 ENV HOME /home/${user}
 RUN groupadd -g ${gid} ${group} && useradd -l -c "Jenkins USER" -d $HOME -u ${uid} -g ${gid} -m ${user}
 
+# No repositories are defined in SP2, and there is no SP2 version of this repo:
+RUN zypper addrepo https://updates.suse.com/SUSE/Products/SLE-BCI/15-SP3/x86_64/product/ SLE_BCI
+
 RUN zypper --non-interactive install --no-recommends --force-resolution SUSEConnect \
-    && zypper clean -a
+    && zypper clean -a \
+    && zypper rr SLE_BCI
 
 RUN --mount=type=secret,id=SLES_REGISTRATION_CODE SUSEConnect -r "$(cat /run/secrets/SLES_REGISTRATION_CODE)"
+
+RUN SUSEConnect -p sle-module-desktop-applications/15.2/x86_64 \
+    && SUSEConnect -p sle-module-development-tools/15.2/x86_64 \
+    && SUSEConnect -p sle-module-containers/15.2/x86_64
+
 CMD ["/bin/bash"]
 FROM base as product
 
