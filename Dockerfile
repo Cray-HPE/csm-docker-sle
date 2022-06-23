@@ -19,7 +19,7 @@
 # OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
-FROM  artifactory.algol60.net/csm-docker/stable/docker.io/opensuse/leap:15.2 as base
+FROM registry.suse.com/suse/sle15:15.3 AS base
 
 ARG user=jenkins
 ARG group=jenkins
@@ -29,6 +29,10 @@ ARG gid=10000
 ENV HOME /home/${user}
 RUN groupadd -g ${gid} ${group} && useradd -l -c "Jenkins USER" -d $HOME -u ${uid} -g ${gid} -m ${user}
 
+RUN zypper --non-interactive install --no-recommends --force-resolution SUSEConnect \
+    && zypper clean -a
+
+RUN --mount=type=secret,id=SLES_REGISTRATION_CODE SUSEConnect -r "$(cat /run/secrets/SLES_REGISTRATION_CODE)"
 CMD ["/bin/bash"]
 FROM base as product
 
@@ -48,6 +52,7 @@ RUN zypper refresh \
         libtool \
         make \
         ncurses-devel \
+        openssh \
         openssl \
         pam-devel \
         readline-devel \
@@ -61,6 +66,7 @@ RUN zypper refresh \
         which \
         xz-devel \
         zlib-devel \
-        && zypper clean -a
+        && zypper clean -a \
+        && SUSEConnect --cleanup
 
 WORKDIR /build
