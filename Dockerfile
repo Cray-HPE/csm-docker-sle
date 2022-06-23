@@ -71,7 +71,6 @@ RUN zypper refresh \
         sqlite3-devel \
         unzip \
         util-linux \
-        vim \
         which \
         xz-devel \
         zlib-devel \
