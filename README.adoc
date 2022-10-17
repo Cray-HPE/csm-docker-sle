@@ -1,0 +1,52 @@
+= CSM Docker: SLE
+
+A SLE Server Docker image used for RPM builds.
+
+== Building
+
+The provided `Makefile` adds Jenkins Pipeline variables to the `docker build` command. The commands below are for use outside of the CSM Jenkins Pipeline.
+
+[source,bash]
+----
+export DOCKER_BUILDKIT=1
+export SLES_REGISTRATION_CODE=<registration_code>
+docker build --secret id=SLES_REGISTRATION_CODE .
+----
+
+== Running
+
+[source,bash]
+----
+# SLES Version
+docker run -it artifactory.algol60.net/csm-docker/stable/csm-docker-sle:15.3
+
+# Git Hash
+docker run -it artifactory.algol60.net/csm-docker/stable/csm-docker-sle:<hash>
+----
+
+== SLES Version(s)
+
+The version is controlled by the `Dockerfile`.
+
+Unstable image tags will publish using these tags:
+
+* `[HASH]`
+* `[HASH]-[TIMESTAMP]`
+
+Stable image tags will publish using these tags:
+
+* `[MAJOR.MINOR]`
+* `[MAJOR.MINOR]-[HASH]`
+* `[MAJOR.MINOR]-[HASH]-[TIMESTAMP]`
+
+The `MAJOR.MINOR` values from Docker tag used in the `Dockerfile`.
+
+
+=== Updating SLES
+
+To use a newer version of SLE, update the `Dockerfile` with a new tag provided from
+https://registry.suse.com[https://registry.suse.com/].
+
+Maintainers should also make a new `main/` branch from the previous Git ref for the demoted version.
+(E.g if `main` becomes `15.4`, then the ref before `15.4` was adopted should have a `main/15.3` branch created
+from it).

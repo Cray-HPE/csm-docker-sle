@@ -13,10 +13,14 @@ pipeline {
         timestamps()
     }
 
+    // Run every week on Sunday.
+    triggers{ cron('0 0 * * 0') }
+
     environment {
         DOCKER_ARGS = getDockerBuildArgs(name: env.NAME, description: env.DESCRIPTION)
         DOCKER_BUILDKIT = 1
         NAME = getRepoName()
+        TIMESTAMP = sh(returnStdout: true, script: "date '+%Y%m%d%H%M%S'").trim()
         SLES_VERSION = sh(returnStdout: true, script: "awk -F ':' '/^FROM/{print \$NF; exit}' Dockerfile | awk '{print \$1}'").trim()
         VERSION = "${GIT_COMMIT[0..6]}"
     }
@@ -36,8 +40,27 @@ pipeline {
         stage('Publish') {
             steps {
                 script {
-                    publishCsmDockerImage(image: env.NAME, tag: env.VERSION, isStable: isStable)
-                    publishCsmDockerImage(image: env.NAME, tag: env.SLES_VERSION, isStable: isStable)
+
+                    // Only overwrite an image if this is a stable build.
+                    if (isStable) {
+                        /*
+                        Publish these tags on stable:
+                            - Major.Minor-Hash-Timestamp    (e.g. 15.3-dhckj3-20221017133121)
+                            - Major.Minor-Hash-Timestamp    (e.g. 15.3-dhckj3)
+                            - Major.Minor                   (e.g. 15.3)
+                        */
+                        publishCsmDockerImage(image: env.NAME, tag: "${env.SLES_VERSION}", isStable: isStable)
+                        publishCsmDockerImage(image: env.NAME, tag: "${env.SLES_VERSION}-${env.VERSION}", isStable: isStable)
+                        publishCsmDockerImage(image: env.NAME, tag: "${env.SLES_VERSION}-${env.VERSION}-${env.TIMESTAMP}", isStable: isStable)
+                    } else {
+                        /*
+                        Publish these tags on unstable:
+                            - Hash                          (e.g. dhckj3)
+                            - Major.Minor-Hash-Timestamp    (e.g. dhckj3-20221017133121)
+                        */
+                        publishCsmDockerImage(image: env.NAME, tag: "${env.VERSION}", isStable: isStable)
+                        publishCsmDockerImage(image: env.NAME, tag: "${env.VERSION}-${env.TIMESTAMP}", isStable: isStable)
+                    }
                 }
             }
         }

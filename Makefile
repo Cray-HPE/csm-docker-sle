@@ -23,9 +23,15 @@ NAME ?= ${NAME}
 DOCKER_BUILDKIT ?= ${DOCKER_BUILDKIT}
 SLES_VERSION := ${SLES_VERSION}
 VERSION ?= ${VERSION}
+ifeq ($(TIMESTAMP),)
+TIMESTAMP := $(shell date '+%Y%m%d%H%M%S')
+endif
 
 all: image
 
 image:
 	docker build --secret id=SLES_REGISTRATION_CODE --pull ${DOCKER_ARGS} --tag '${NAME}:${VERSION}' .
+	docker tag '${NAME}:${VERSION}' ${NAME}:${VERSION}-${TIMESTAMP}
 	docker tag '${NAME}:${VERSION}' ${NAME}:${SLES_VERSION}
+	docker tag '${NAME}:${VERSION}' ${NAME}:${SLES_VERSION}-${VERSION}
+	docker tag '${NAME}:${VERSION}' ${NAME}:${SLES_VERSION}-${VERSION}-${TIMESTAMP}
