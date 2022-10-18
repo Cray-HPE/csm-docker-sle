@@ -44,7 +44,7 @@ pipeline {
     triggers{ cron('0 0 * * 0') }
 
     environment {
-        DOCKER_ARGS = getDockerBuildArgs(name: env.NAME, description: env.DESCRIPTION)
+        DOCKER_ARGS = getDockerBuildArgs(name: getRepoName(), description: 'A build environment.')
         DOCKER_BUILDKIT = 1
         NAME = getRepoName()
         TIMESTAMP = sh(returnStdout: true, script: "date '+%Y%m%d%H%M%S'").trim()
