@@ -25,6 +25,13 @@
  */
 @Library('csm-shared-library@main') _
 
+// Disable pr-merge builds; node-image pipeline doesn't use the PR images at all.
+if (env.BRANCH_NAME ==~ ~"^PR-\\d+") {
+    currentBuild.result = 'SUCCESS'
+    echo "Pull-Requests are not built for node-image-build; this is a no-op build."
+    return
+}
+
 // Only main or maint/* branches are stable.
 def promotionToken = ~"(main|maint\\/.*)"
 def isStable = env.BRANCH_NAME ==~ promotionToken ? true : false
