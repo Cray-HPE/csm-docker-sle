@@ -4,7 +4,7 @@ A SLE Server Docker image used for RPM builds.
 
 == Building
 
-The provided `Makefile` adds Jenkins Pipeline variables to the `docker build` command. The commands below are for use outside of the CSM Jenkins Pipeline.
+The provided `Makefile` adds Jenkins Pipeline variables to the `docker build` command. The commands below are for use outside the CSM Jenkins Pipeline.
 
 [source,bash]
 ----
@@ -39,14 +39,12 @@ Stable image tags will publish using these tags:
 * `[MAJOR.MINOR]-[HASH]`
 * `[MAJOR.MINOR]-[HASH]-[TIMESTAMP]`
 
-The `MAJOR.MINOR` values from Docker tag used in the `Dockerfile`.
-
 
 === Updating SLES
 
 To use a newer version of SLE, update the `Dockerfile` with a new tag provided from
 https://registry.suse.com[https://registry.suse.com/].
 
-Maintainers should also make a new `main/` branch from the previous Git ref for the demoted version.
-(E.g if `main` becomes `15.4`, then the ref before `15.4` was adopted should have a `main/15.3` branch created
+Maintainers should also make a new `maint/` branch from the previous Git ref for the demoted version.
+(E.g if `main` becomes `15.4`, then the ref before `15.4` was adopted should have a `maint/15.3` branch created
 from it).

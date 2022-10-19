@@ -47,8 +47,8 @@ pipeline {
         timestamps()
     }
 
-    // Run every week on Sunday.
-    triggers{ cron('0 0 * * 0') }
+    // Run every week on Sunday at 7 AM..
+    triggers{ cron('H 7 * * 0') }
 
     environment {
         DOCKER_ARGS = getDockerBuildArgs(name: getRepoName(), description: 'A build environment.')
