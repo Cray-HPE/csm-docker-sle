@@ -90,7 +90,7 @@ pipeline {
                         /*
                         Publish these tags on unstable:
                             - Hash                          (e.g. dhckj3)
-                            - Major.Minor-Hash-Timestamp    (e.g. dhckj3-20221017133121)
+                            - Hash-Timestamp                (e.g. dhckj3-20221017133121)
                         */
                         publishCsmDockerImage(image: env.NAME, tag: "${env.VERSION}", isStable: isStable)
                         publishCsmDockerImage(image: env.NAME, tag: "${env.VERSION}-${env.TIMESTAMP}", isStable: isStable)
