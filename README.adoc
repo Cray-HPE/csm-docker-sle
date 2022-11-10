@@ -18,7 +18,7 @@ docker build --secret id=SLES_REGISTRATION_CODE .
 [source,bash]
 ----
 # SLES Version
-docker run -it artifactory.algol60.net/csm-docker/stable/csm-docker-sle:15.3
+docker run -it artifactory.algol60.net/csm-docker/stable/csm-docker-sle:15.4
 
 # Git Hash
 docker run -it artifactory.algol60.net/csm-docker/stable/csm-docker-sle:<hash>
