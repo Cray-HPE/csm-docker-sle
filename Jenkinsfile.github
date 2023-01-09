@@ -2,7 +2,7 @@
  *
  *  MIT License
  *
- *  (C) Copyright 2022 Hewlett Packard Enterprise Development LP
+ *  (C) Copyright 2023 Hewlett Packard Enterprise Development LP
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a
  *  copy of this software and associated documentation files (the "Software"),
@@ -37,7 +37,7 @@ def promotionToken = ~"(main|maint\\/.*)"
 def isStable = env.BRANCH_NAME ==~ promotionToken ? true : false
 pipeline {
     agent {
-        label "metal-gcp-builder"
+        label "metal-gcp-builder-large"
     }
 
     options {
@@ -53,6 +53,7 @@ pipeline {
     environment {
         DOCKER_ARGS = getDockerBuildArgs(name: getRepoName(), description: 'A build environment.')
         DOCKER_BUILDKIT = 1
+        MULTI_ARCH = 1
         NAME = getRepoName()
         TIMESTAMP = sh(returnStdout: true, script: "date '+%Y%m%d%H%M%S'").trim()
         SLES_VERSION = sh(returnStdout: true, script: "awk -F ':' '/^FROM/{print \$NF; exit}' Dockerfile | awk '{print \$1}'").trim()
@@ -83,17 +84,17 @@ pipeline {
                             - Major.Minor-Hash-Timestamp    (e.g. 15.3-dhckj3)
                             - Major.Minor                   (e.g. 15.3)
                         */
-                        publishCsmDockerImage(image: env.NAME, tag: "${env.SLES_VERSION}", isStable: isStable)
-                        publishCsmDockerImage(image: env.NAME, tag: "${env.SLES_VERSION}-${env.VERSION}", isStable: isStable)
-                        publishCsmDockerImage(image: env.NAME, tag: "${env.SLES_VERSION}-${env.VERSION}-${env.TIMESTAMP}", isStable: isStable)
+                        publishCsmDockerImage(image: env.NAME, tag: "${env.SLES_VERSION}", multiArch: env.MULTI_ARCH, isStable: isStable)
+                        publishCsmDockerImage(image: env.NAME, tag: "${env.SLES_VERSION}-${env.VERSION}", multiArch: env.MULTI_ARCH, isStable: isStable)
+                        publishCsmDockerImage(image: env.NAME, tag: "${env.SLES_VERSION}-${env.VERSION}-${env.TIMESTAMP}", multiArch: env.MULTI_ARCH, isStable: isStable)
                     } else {
                         /*
                         Publish these tags on unstable:
                             - Hash                          (e.g. dhckj3)
                             - Hash-Timestamp                (e.g. dhckj3-20221017133121)
                         */
-                        publishCsmDockerImage(image: env.NAME, tag: "${env.VERSION}", isStable: isStable)
-                        publishCsmDockerImage(image: env.NAME, tag: "${env.VERSION}-${env.TIMESTAMP}", isStable: isStable)
+                        publishCsmDockerImage(image: env.NAME, tag: "${env.VERSION}", multiArch: env.MULTI_ARCH, isStable: isStable)
+                        publishCsmDockerImage(image: env.NAME, tag: "${env.VERSION}-${env.TIMESTAMP}", multiArch: env.MULTI_ARCH, isStable: isStable)
                     }
                 }
             }
