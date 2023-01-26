@@ -64,6 +64,7 @@ RUN zypper refresh \
         rsync \
         skopeo \
         sqlite3-devel \
+        sudo \
         unzip \
         util-linux \
         vim \
