@@ -58,6 +58,7 @@ RUN zypper refresh \
         readline-devel \
         rpm-build \
         rpmlint \
+        rsync \
         skopeo \
         sqlite3-devel \
         unzip \
