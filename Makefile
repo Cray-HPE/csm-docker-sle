@@ -21,21 +21,41 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 #
-NAME ?= ${NAME}
-DOCKER_BUILDKIT ?= ${DOCKER_BUILDKIT}
-SLES_VERSION := ${SLES_VERSION}
-VERSION ?= ${VERSION}
+ifeq ($(NAME),)
+export NAME := $(shell basename $(shell pwd))
+endif
+
+ifeq ($(DOCKER_BUILDKIT),)
+export DOCKER_BUILDKIT ?= 1
+endif
+
+ifeq ($(SLE_VERSION),)
+export SLE_VERSION := $(shell awk -F ':' '/^FROM/{print $$NF; exit}' Dockerfile | awk '{print $$1}')
+endif
+
 ifeq ($(TIMESTAMP),)
-TIMESTAMP := $(shell date '+%Y%m%d%H%M%S')
+export TIMESTAMP := $(shell date '+%Y%m%d%H%M%S')
+endif
+
+ifeq ($(VERSION),)
+export VERSION ?= $(shell git rev-parse --short HEAD)
 endif
 
 all: image
 
-image:
+.PHONY: print
+print:
+	@printf "%-20s: %s\n" Name $(NAME)
+	@printf "%-20s: %s\n" DOCKER_BUILDKIT $(DOCKER_BUILDKIT)
+	@printf "%-20s: %s\n" 'SLE Version' $(SLE_VERSION)
+	@printf "%-20s: %s\n" Timestamp $(TIMESTAMP)
+	@printf "%-20s: %s\n" Version $(VERSION)
+
+image: print
 	docker buildx create --use
 	docker buildx build --platform=linux/amd64,linux/arm64 --secret id=SLES_REGISTRATION_CODE --pull ${DOCKER_ARGS} .
 	docker buildx build --platform linux/amd64 --load -t '${NAME}:${VERSION}' .
 	docker buildx build --platform linux/amd64 --load -t '${NAME}:${VERSION}-${TIMESTAMP}' .
-	docker buildx build --platform linux/amd64 --load -t '${NAME}:${SLES_VERSION}' .
-	docker buildx build --platform linux/amd64 --load -t '${NAME}:${SLES_VERSION}-${VERSION}' .
-	docker buildx build --platform linux/amd64 --load -t '${NAME}:${SLES_VERSION}-${VERSION}-${TIMESTAMP}' .
+	docker buildx build --platform linux/amd64 --load -t '${NAME}:${SLE_VERSION}' .
+	docker buildx build --platform linux/amd64 --load -t '${NAME}:${SLE_VERSION}-${VERSION}' .
+	docker buildx build --platform linux/amd64 --load -t '${NAME}:${SLE_VERSION}-${VERSION}-${TIMESTAMP}' .
