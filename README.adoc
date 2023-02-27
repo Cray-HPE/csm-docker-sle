@@ -10,7 +10,10 @@ The provided `Makefile` adds Jenkins Pipeline variables to the `docker build` co
 ----
 export DOCKER_BUILDKIT=1
 export SLES_REGISTRATION_CODE=<registration_code>
-docker build --secret id=SLES_REGISTRATION_CODE .
+
+make image
+
+docker run -it csm-docker-sle:15.4
 ----
 
 == Running
