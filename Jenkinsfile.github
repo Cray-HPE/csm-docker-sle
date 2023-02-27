@@ -55,7 +55,7 @@ pipeline {
         DOCKER_BUILDKIT = 1
         NAME = getRepoName()
         TIMESTAMP = sh(returnStdout: true, script: "date '+%Y%m%d%H%M%S'").trim()
-        SLES_VERSION = sh(returnStdout: true, script: "awk -F ':' '/^FROM/{print \$NF; exit}' Dockerfile | awk '{print \$1}'").trim()
+        SLE_VERSION = sh(returnStdout: true, script: "awk -F ':' '/^FROM/{print \$NF; exit}' Dockerfile | awk '{print \$1}'").trim()
         VERSION = "${GIT_COMMIT[0..6]}"
     }
 
@@ -83,9 +83,9 @@ pipeline {
                             - Major.Minor-Hash-Timestamp    (e.g. 15.3-dhckj3)
                             - Major.Minor                   (e.g. 15.3)
                         */
-                        publishCsmDockerImage(image: env.NAME, tag: "${env.SLES_VERSION}", isStable: isStable)
-                        publishCsmDockerImage(image: env.NAME, tag: "${env.SLES_VERSION}-${env.VERSION}", isStable: isStable)
-                        publishCsmDockerImage(image: env.NAME, tag: "${env.SLES_VERSION}-${env.VERSION}-${env.TIMESTAMP}", isStable: isStable)
+                        publishCsmDockerImage(image: env.NAME, tag: "${env.SLE_VERSION}", isStable: isStable)
+                        publishCsmDockerImage(image: env.NAME, tag: "${env.SLE_VERSION}-${env.VERSION}", isStable: isStable)
+                        publishCsmDockerImage(image: env.NAME, tag: "${env.SLE_VERSION}-${env.VERSION}-${env.TIMESTAMP}", isStable: isStable)
                     } else {
                         /*
                         Publish these tags on unstable:
