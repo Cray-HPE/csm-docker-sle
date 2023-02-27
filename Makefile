@@ -29,8 +29,8 @@ ifeq ($(DOCKER_BUILDKIT),)
 export DOCKER_BUILDKIT ?= 1
 endif
 
-ifeq ($(GO_VERSION),)
-export GO_VERSION := $(shell awk -v replace="'" '/goVersion/{gsub(replace,"", $$NF); print $$NF; exit}' Jenkinsfile.github)
+ifeq ($(SLE_VERSION),)
+export SLE_VERSION := $(shell awk -F ':' '/^FROM/{print $$NF; exit}' Dockerfile | awk '{print $$1}')
 endif
 
 ifeq ($(TIMESTAMP),)
@@ -43,9 +43,17 @@ endif
 
 all: image
 
-image:
+.PHONY: print
+print:
+	@printf "%-20s: %s\n" Name $(NAME)
+	@printf "%-20s: %s\n" DOCKER_BUILDKIT $(DOCKER_BUILDKIT)
+	@printf "%-20s: %s\n" 'SLE Version' $(SLE_VERSION)
+	@printf "%-20s: %s\n" Timestamp $(TIMESTAMP)
+	@printf "%-20s: %s\n" Version $(VERSION)
+
+image: print
 	docker build --secret id=SLES_REGISTRATION_CODE --pull ${DOCKER_ARGS} --tag '${NAME}:${VERSION}' .
 	docker tag '${NAME}:${VERSION}' ${NAME}:${VERSION}-${TIMESTAMP}
-	docker tag '${NAME}:${VERSION}' ${NAME}:${SLES_VERSION}
-	docker tag '${NAME}:${VERSION}' ${NAME}:${SLES_VERSION}-${VERSION}
-	docker tag '${NAME}:${VERSION}' ${NAME}:${SLES_VERSION}-${VERSION}-${TIMESTAMP}
+	docker tag '${NAME}:${VERSION}' ${NAME}:${SLE_VERSION}
+	docker tag '${NAME}:${VERSION}' ${NAME}:${SLE_VERSION}-${VERSION}
+	docker tag '${NAME}:${VERSION}' ${NAME}:${SLE_VERSION}-${VERSION}-${TIMESTAMP}
