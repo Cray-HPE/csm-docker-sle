@@ -10,12 +10,14 @@ name: Hadolint
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
+      - 'maint/**'
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: [ main ]
-  schedule:
-    - cron: '16 1 * * 1'
+    branches:
+      - main
+      - 'maint/**'
 
 permissions:
   contents: read
