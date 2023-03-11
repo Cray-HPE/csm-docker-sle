@@ -83,17 +83,17 @@ pipeline {
                             - Major.Minor-Hash-Timestamp    (e.g. 15.3-dhckj3)
                             - Major.Minor                   (e.g. 15.3)
                         */
-                        publishCsmDockerImage(image: env.NAME, tag: "${env.SLE_VERSION}", isStable: isStable)
-                        publishCsmDockerImage(image: env.NAME, tag: "${env.SLE_VERSION}-${env.VERSION}", isStable: isStable)
-                        publishCsmDockerImage(image: env.NAME, tag: "${env.SLE_VERSION}-${env.VERSION}-${env.TIMESTAMP}", isStable: isStable)
+                        publishCsmDockerImage(image: env.NAME, isStable: isStable, tag: "${env.SLE_VERSION}")
+                        publishCsmDockerImage(image: env.NAME, isStable: isStable, tag: "${env.SLE_VERSION}-${env.VERSION}")
+                        publishCsmDockerImage(image: env.NAME, isStable: isStable, tag: "${env.SLE_VERSION}-${env.VERSION}-${env.TIMESTAMP}")
                     } else {
                         /*
                         Publish these tags on unstable:
                             - Hash                          (e.g. dhckj3)
                             - Hash-Timestamp                (e.g. dhckj3-20221017133121)
                         */
-                        publishCsmDockerImage(image: env.NAME, tag: "${env.VERSION}", isStable: isStable)
-                        publishCsmDockerImage(image: env.NAME, tag: "${env.VERSION}-${env.TIMESTAMP}", isStable: isStable)
+                        publishCsmDockerImage(image: env.NAME, isStable: isStable, tag: "${env.VERSION}")
+                        publishCsmDockerImage(image: env.NAME, isStable: isStable, tag: "${env.VERSION}-${env.TIMESTAMP}")
                     }
                 }
             }
