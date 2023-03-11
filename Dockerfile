@@ -21,7 +21,7 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 #
-FROM registry.suse.com/suse/sle15:15.4 AS base
+FROM registry.suse.com/suse/sle15:15.5 AS base
 
 ARG user=jenkins
 ARG group=jenkins
