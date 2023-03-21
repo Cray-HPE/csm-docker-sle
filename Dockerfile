@@ -43,6 +43,10 @@ FROM base as product
 
 RUN zypper refresh \
     && zypper --non-interactive install --no-recommends --force-resolution \
+        bash-completion
+
+RUN zypper refresh \
+    && zypper --non-interactive install --no-recommends --force-resolution \
         autoconf \
         automake \
         createrepo_c \
