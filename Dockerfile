@@ -76,6 +76,9 @@ RUN zypper refresh \
         xz-devel \
         zlib-devel \
         && zypper clean -a \
-        && suseconnect --cleanup
+        && suseconnect --cleanup \
+
+# Install git-vendor
+RUN  curl -sSL https://git.io/vzN5m | sudo bash /dev/stdin
 
 WORKDIR /build
