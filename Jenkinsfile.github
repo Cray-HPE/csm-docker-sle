@@ -65,7 +65,7 @@ pipeline {
         stage('Build') {
             steps {
                 withCredentials([
-                    string(credentialsId: 'sles15-registration-code', variable: 'SLES_REGISTRATION_CODE')
+                    string(credentialsId: 'sles15-beta-registration-code', variable: 'SLES_REGISTRATION_CODE'),
                 ]) {
                     sh "make image"
                 }
@@ -74,7 +74,7 @@ pipeline {
 
         stage('Publish') {
             environment {
-                SLES_REGISTRATION_CODE = credentials('sles15-registration-code')
+                SLES_REGISTRATION_CODE = credentials('sles15-beta-registration-code')
                 BUILD_ARGS = "--build-arg 'SLE_VERSION=${SLE_VERSION}' --secret id=SLES_REGISTRATION_CODE"
             }
             steps {
@@ -84,9 +84,9 @@ pipeline {
                     if (isStable) {
                         /*
                         Publish these tags on stable:
-                            - Major.Minor-Hash-Timestamp    (e.g. 15.4-dhckj3-20221017133121)
-                            - Major.Minor-Hash-Timestamp    (e.g. 15.4-dhckj3)
-                            - Major.Minor                   (e.g. 15.4)
+                            - Major.Minor-Hash-Timestamp    (e.g. 15.5-dhckj3-20221017133121)
+                            - Major.Minor-Hash-Timestamp    (e.g. 15.5-dhckj3)
+                            - Major.Minor                   (e.g. 15.5)
                         */
                         publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable, tag: "${env.SLE_VERSION}")
                         publishCsmDockerImage(image: env.NAME, multiArch: env.MULTI_ARCH, isStable: isStable, tag: "${env.SLE_VERSION}-${env.VERSION}")
