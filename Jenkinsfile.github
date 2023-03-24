@@ -51,12 +51,15 @@ pipeline {
     triggers{ cron('H 7 * * 0') }
 
     environment {
+        BUILD_ARGS = "--build-arg 'SLE_VERSION=${SLE_VERSION}' --secret id=SLES_REGISTRATION_CODE_amd64 --secret id=SLES_REGISTRATION_CODE_arm64"
         DOCKER_ARGS = getDockerBuildArgs(name: getRepoName(), description: 'A build environment.')
         DOCKER_BUILDKIT = 1
         MULTI_ARCH = 1
         NAME = getRepoName()
         TIMESTAMP = sh(returnStdout: true, script: "date '+%Y%m%d%H%M%S'").trim()
         SLE_VERSION = sh(returnStdout: true, script: "awk -F ':' '/^FROM/{print \$NF; exit}' Dockerfile | awk '{print \$1}'").trim()
+        SLES_REGISTRATION_CODE_amd64 = credentials('sles-beta-registration-code-x86_64')
+        SLES_REGISTRATION_CODE_arm64 = credentials('sles-beta-registration-code-aarch64')
         VERSION = "${GIT_COMMIT[0..6]}"
     }
 
@@ -64,19 +67,11 @@ pipeline {
 
         stage('Build') {
             steps {
-                withCredentials([
-                    string(credentialsId: 'sles15-beta-registration-code', variable: 'SLES_REGISTRATION_CODE'),
-                ]) {
-                    sh "make image"
-                }
+                sh "make image"
             }
         }
 
         stage('Publish') {
-            environment {
-                SLES_REGISTRATION_CODE = credentials('sles15-beta-registration-code')
-                BUILD_ARGS = "--build-arg 'SLE_VERSION=${SLE_VERSION}' --secret id=SLES_REGISTRATION_CODE"
-            }
             steps {
                 script {
 

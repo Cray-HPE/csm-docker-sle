@@ -23,6 +23,8 @@
 #
 FROM registry.suse.com/bci/bci-base:15.5 AS base
 
+ARG TARGETARCH
+
 ARG user=jenkins
 ARG group=jenkins
 ARG uid=10000
@@ -37,7 +39,7 @@ RUN sed -i -E "s/^.*(rpm\.install\.excludedocs).*/\1 = yes/" /etc/zypp/zypp.conf
 RUN zypper --non-interactive install --no-recommends --force-resolution suseconnect-ng \
     && zypper clean -a
 
-RUN --mount=type=secret,id=SLES_REGISTRATION_CODE suseconnect -r "$(cat /run/secrets/SLES_REGISTRATION_CODE)"
+RUN --mount=type=secret,id=SLES_REGISTRATION_CODE_${TARGETARCH} suseconnect -r "$(cat /run/secrets/SLES_REGISTRATION_CODE_${TARGETARCH})"
 CMD ["/bin/bash"]
 FROM base as product
 
