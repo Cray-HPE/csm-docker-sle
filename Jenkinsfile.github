@@ -33,7 +33,7 @@ if (env.BRANCH_NAME ==~ ~"^PR-\\d+") {
 }
 
 // Only main or maint/* branches are stable.
-def promotionToken = ~"(main|maint\\/.*)"
+def promotionToken = ~"(main|maint\\/.*|beta\\/.*)"
 def isStable = env.BRANCH_NAME ==~ promotionToken ? true : false
 pipeline {
     agent {
@@ -56,10 +56,10 @@ pipeline {
         DOCKER_BUILDKIT = 1
         MULTI_ARCH = 1
         NAME = getRepoName()
-        TIMESTAMP = sh(returnStdout: true, script: "date '+%Y%m%d%H%M%S'").trim()
         SLE_VERSION = sh(returnStdout: true, script: "awk -F ':' '/^FROM/{print \$NF; exit}' Dockerfile | awk '{print \$1}'").trim()
         SLES_REGISTRATION_CODE_amd64 = credentials('sles-beta-registration-code-x86_64')
         SLES_REGISTRATION_CODE_arm64 = credentials('sles-beta-registration-code-aarch64')
+        TIMESTAMP = sh(returnStdout: true, script: "date '+%Y%m%d%H%M%S'").trim()
         VERSION = "${GIT_COMMIT[0..6]}"
     }
 
