@@ -1,7 +1,7 @@
 #
 # MIT License
 #
-# (C) Copyright 2022-2023 Hewlett Packard Enterprise Development LP
+# (C) Copyright [2022-2023] Hewlett Packard Enterprise Development LP
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -52,8 +52,10 @@ print:
 	@printf "%-20s: %s\n" Version $(VERSION)
 
 image: print
-	docker build --secret id=SLES_REGISTRATION_CODE --pull ${DOCKER_ARGS} --tag '${NAME}:${VERSION}' .
-	docker tag '${NAME}:${VERSION}' ${NAME}:${VERSION}-${TIMESTAMP}
-	docker tag '${NAME}:${VERSION}' ${NAME}:${SLE_VERSION}
-	docker tag '${NAME}:${VERSION}' ${NAME}:${SLE_VERSION}-${VERSION}
-	docker tag '${NAME}:${VERSION}' ${NAME}:${SLE_VERSION}-${VERSION}-${TIMESTAMP}
+	docker buildx create --use
+	docker buildx build --platform=linux/amd64,linux/arm64 --secret id=SLES_REGISTRATION_CODE --pull ${DOCKER_ARGS} .
+	docker buildx build --platform linux/amd64 --load -t '${NAME}:${VERSION}' .
+	docker buildx build --platform linux/amd64 --load -t '${NAME}:${VERSION}-${TIMESTAMP}' .
+	docker buildx build --platform linux/amd64 --load -t '${NAME}:${SLE_VERSION}' .
+	docker buildx build --platform linux/amd64 --load -t '${NAME}:${SLE_VERSION}-${VERSION}' .
+	docker buildx build --platform linux/amd64 --load -t '${NAME}:${SLE_VERSION}-${VERSION}-${TIMESTAMP}' .
