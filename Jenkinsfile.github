@@ -48,7 +48,7 @@ pipeline {
     }
 
     // Run every week on Sunday at 7 AM..
-    triggers{ cron('H 7 * * 0') }
+    triggers { cron('H 7 * * 0') }
 
     environment {
         BUILD_ARGS = "--build-arg 'SLE_VERSION=${SLE_VERSION}' --secret id=SLES_REGISTRATION_CODE_amd64 --secret id=SLES_REGISTRATION_CODE_arm64"
