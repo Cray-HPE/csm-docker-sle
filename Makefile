@@ -29,6 +29,10 @@ ifeq ($(DOCKER_BUILDKIT),)
 export DOCKER_BUILDKIT ?= 1
 endif
 
+ifeq ($(BUILD_ARGS),)
+export BUILD_ARGS ?= "--build-arg 'SLE_VERSION=${SLE_VERSION}' --secret id=SLES_REGISTRATION_CODE_amd64 --secret id=SLES_REGISTRATION_CODE_arm64"
+endif
+
 ifeq ($(SLE_VERSION),)
 export SLE_VERSION := $(shell awk -F ':' '/^FROM/{print $$NF; exit}' Dockerfile | awk '{print $$1}')
 endif
