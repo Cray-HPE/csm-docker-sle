@@ -1,7 +1,7 @@
 #
 # MIT License
 #
-# (C) Copyright [2022-2023] Hewlett Packard Enterprise Development LP
+# (C) Copyright 2022-2023 Hewlett Packard Enterprise Development LP
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -29,6 +29,10 @@ ifeq ($(DOCKER_BUILDKIT),)
 export DOCKER_BUILDKIT ?= 1
 endif
 
+ifeq ($(BUILD_ARGS),)
+export BUILD_ARGS ?= "--build-arg 'SLE_VERSION=${SLE_VERSION}' --secret id=SLES_REGISTRATION_CODE"
+endif
+
 ifeq ($(SLE_VERSION),)
 export SLE_VERSION := $(shell awk -F ':' '/^FROM/{print $$NF; exit}' Dockerfile | awk '{print $$1}')
 endif
@@ -52,10 +56,27 @@ print:
 	@printf "%-20s: %s\n" Version $(VERSION)
 
 image: print
+	docker buildx build \
+		${BUILD_ARGS} \
+		${DOCKER_ARGS} \
+		--cache-to type=local,dest=docker-build-cache  \
+        --platform linux/amd64,linux/arm64 \
+        --builder $$(docker buildx create --platform linux/amd64,linux/arm64) \
+        --pull \
+        .
+
 	docker buildx create --use
-	docker buildx build --platform=linux/amd64,linux/arm64 --secret id=SLES_REGISTRATION_CODE --pull ${DOCKER_ARGS} .
-	docker buildx build --platform linux/amd64 --load -t '${NAME}:${VERSION}' .
-	docker buildx build --platform linux/amd64 --load -t '${NAME}:${VERSION}-${TIMESTAMP}' .
-	docker buildx build --platform linux/amd64 --load -t '${NAME}:${SLE_VERSION}' .
-	docker buildx build --platform linux/amd64 --load -t '${NAME}:${SLE_VERSION}-${VERSION}' .
-	docker buildx build --platform linux/amd64 --load -t '${NAME}:${SLE_VERSION}-${VERSION}-${TIMESTAMP}' .
+
+	docker buildx build \
+		${BUILD_ARGS} \
+		${DOCKER_ARGS} \
+		--cache-from type=local,src=docker-build-cache \
+		--platform linux/amd64 \
+		--pull \
+		--load \
+		-t '${NAME}:${VERSION}' \
+		-t '${NAME}:${VERSION}-${TIMESTAMP}' \
+		-t '${NAME}:${SLE_VERSION}' \
+		-t '${NAME}:${SLE_VERSION}-${VERSION}' \
+		-t '${NAME}:${SLE_VERSION}-${VERSION}-${TIMESTAMP}' \
+		.
