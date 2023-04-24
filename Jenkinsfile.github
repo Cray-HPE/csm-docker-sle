@@ -2,7 +2,7 @@
  *
  *  MIT License
  *
- *  (C) Copyright 2023 Hewlett Packard Enterprise Development LP
+ *  (C) Copyright 2022-2023 Hewlett Packard Enterprise Development LP
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a
  *  copy of this software and associated documentation files (the "Software"),
@@ -42,21 +42,23 @@ pipeline {
 
     options {
         buildDiscarder(logRotator(numToKeepStr: "1"))
-        timeout(time: 20, unit: 'MINUTES')
+        timeout(time: 30, unit: 'MINUTES')
         disableConcurrentBuilds()
         timestamps()
     }
 
     // Run every week on Sunday at 7 AM..
-    triggers{ cron('H 7 * * 0') }
+    triggers { cron('H 7 * * 0') }
 
     environment {
+        BUILD_ARGS = "--build-arg 'SLE_VERSION=${SLE_VERSION}' --secret id=SLES_REGISTRATION_CODE"
         DOCKER_ARGS = getDockerBuildArgs(name: getRepoName(), description: 'A build environment.')
         DOCKER_BUILDKIT = 1
         MULTI_ARCH = 1
         NAME = getRepoName()
-        TIMESTAMP = sh(returnStdout: true, script: "date '+%Y%m%d%H%M%S'").trim()
         SLE_VERSION = sh(returnStdout: true, script: "awk -F ':' '/^FROM/{print \$NF; exit}' Dockerfile | awk '{print \$1}'").trim()
+        SLES_REGISTRATION_CODE = credentials('sles15-registration-code')
+        TIMESTAMP = sh(returnStdout: true, script: "date '+%Y%m%d%H%M%S'").trim()
         VERSION = "${GIT_COMMIT[0..6]}"
     }
 
@@ -64,19 +66,11 @@ pipeline {
 
         stage('Build') {
             steps {
-                withCredentials([
-                    string(credentialsId: 'sles15-registration-code', variable: 'SLES_REGISTRATION_CODE')
-                ]) {
-                    sh "make image"
-                }
+                sh "make image"
             }
         }
 
         stage('Publish') {
-            environment {
-                SLES_REGISTRATION_CODE = credentials('sles15-registration-code')
-                BUILD_ARGS = "--build-arg 'SLE_VERSION=${SLE_VERSION}' --secret id=SLES_REGISTRATION_CODE"
-            }
             steps {
                 script {
 
