@@ -47,6 +47,7 @@ RUN zypper refresh \
         gcc-c++ \
         gdbm-devel \
         git \
+        jq \
         libopenssl-devel \
         libpcap-devel \
         libtool \
@@ -61,9 +62,11 @@ RUN zypper refresh \
         rsync \
         skopeo \
         sqlite3-devel \
+        sudo \
         unzip \
         util-linux \
         vim \
+        wget \
         which \
         xz-devel \
         zlib-devel \
