@@ -20,7 +20,8 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 FROM registry.suse.com/suse/sle15:15.3 AS base
-
+ARG SLE_VERSION
+ARG TARGETARCH
 ARG user=jenkins
 ARG group=jenkins
 ARG uid=10000
@@ -33,6 +34,10 @@ RUN zypper --non-interactive install --no-recommends --force-resolution SUSEConn
     && zypper clean -a
 
 RUN --mount=type=secret,id=SLES_REGISTRATION_CODE SUSEConnect -r "$(cat /run/secrets/SLES_REGISTRATION_CODE)"
+
+RUN if [ "$TARGETARCH" = 'arm64' ]; then SUSEConnect -p "PackageHub/${SLE_VERSION}/aarch64" ; fi
+RUN if [ $TARGETARCH = 'amd64' ]; then SUSEConnect -p "PackageHub/${SLE_VERSION}/x86_64" ; fi
+
 CMD ["/bin/bash"]
 FROM base as product
 
@@ -69,6 +74,7 @@ RUN zypper refresh \
         wget \
         which \
         xz-devel \
+        yq \
         zlib-devel \
         && zypper clean -a \
         && SUSEConnect --cleanup
