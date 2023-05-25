@@ -22,7 +22,8 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 #
 FROM registry.suse.com/suse/sle15:15.4 AS base
-
+ARG SLE_VERSION
+ARG TARGETARCH
 ARG user=jenkins
 ARG group=jenkins
 ARG uid=10000
@@ -38,6 +39,10 @@ RUN zypper --non-interactive install --no-recommends --force-resolution suseconn
     && zypper clean -a
 
 RUN --mount=type=secret,id=SLES_REGISTRATION_CODE suseconnect -r "$(cat /run/secrets/SLES_REGISTRATION_CODE)"
+
+RUN if [ "$TARGETARCH" = 'arm64' ]; then SUSEConnect -p "PackageHub/${SLE_VERSION}/aarch64" ; fi
+RUN if [ $TARGETARCH = 'amd64' ]; then SUSEConnect -p "PackageHub/${SLE_VERSION}/x86_64" ; fi
+
 CMD ["/bin/bash"]
 FROM base as product
 
@@ -78,6 +83,7 @@ RUN zypper refresh \
         wget \
         which \
         xz-devel \
+        yq \
         zlib-devel \
         && zypper clean -a \
         && suseconnect --cleanup \
