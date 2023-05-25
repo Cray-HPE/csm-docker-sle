@@ -74,6 +74,7 @@ image: print
 		--platform linux/amd64 \
 		--pull \
 		--load \
+		-t '${NAME}:latest' \
 		-t '${NAME}:${VERSION}' \
 		-t '${NAME}:${VERSION}-${TIMESTAMP}' \
 		-t '${NAME}:${SLE_VERSION}' \
