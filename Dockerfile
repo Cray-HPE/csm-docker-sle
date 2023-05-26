@@ -41,7 +41,7 @@ RUN zypper --non-interactive install --no-recommends --force-resolution suseconn
 RUN --mount=type=secret,id=SLES_REGISTRATION_CODE suseconnect -r "$(cat /run/secrets/SLES_REGISTRATION_CODE)"
 
 RUN if [ "$TARGETARCH" = 'arm64' ]; then SUSEConnect -p "PackageHub/${SLE_VERSION}/aarch64" ; fi
-RUN if [ $TARGETARCH = 'amd64' ]; then SUSEConnect -p "PackageHub/${SLE_VERSION}/x86_64" ; fi
+RUN if [ "$TARGETARCH" = 'amd64' ]; then SUSEConnect -p "PackageHub/${SLE_VERSION}/x86_64" ; fi
 
 CMD ["/bin/bash"]
 FROM base as product
