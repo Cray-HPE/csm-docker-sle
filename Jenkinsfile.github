@@ -79,21 +79,22 @@ pipeline {
                     if (isStable) {
                         /*
                         Publish these tags on stable:
-                            - Major.Minor-Hash-Timestamp    (e.g. 15.3-dhckj3-20221017133121)
-                            - Major.Minor-Hash-Timestamp    (e.g. 15.3-dhckj3)
-                            - Major.Minor                   (e.g. 15.3)
+                            - Major.Minor                   (e.g. 15.2)
                         */
                         publishCsmDockerImage(image: env.NAME, isStable: isStable, tag: "${env.SLE_VERSION}")
-                        publishCsmDockerImage(image: env.NAME, isStable: isStable, tag: "${env.SLE_VERSION}-${env.VERSION}")
-                        publishCsmDockerImage(image: env.NAME, isStable: isStable, tag: "${env.SLE_VERSION}-${env.VERSION}-${env.TIMESTAMP}")
+
+                        // Only publish a latest when on main, never publish a latest for any beta or maint branches.
+                        if (env.BRANCH_NAME == 'main') {
+                            publishCsmDockerImage(image: env.NAME, isStable: isStable, tag: "latest")
+                        }
                     } else {
                         /*
                         Publish these tags on unstable:
-                            - Hash                          (e.g. dhckj3)
-                            - Hash-Timestamp                (e.g. dhckj3-20221017133121)
+                            - Hash                          (e.g. 15.2-dhckj3)
+                            - Hash-Timestamp                (e.g. 15.2-dhckj3-20221017133121)
                         */
-                        publishCsmDockerImage(image: env.NAME, isStable: isStable, tag: "${env.VERSION}")
-                        publishCsmDockerImage(image: env.NAME, isStable: isStable, tag: "${env.VERSION}-${env.TIMESTAMP}")
+                        publishCsmDockerImage(image: env.NAME, isStable: isStable, tag: "${env.SLE_VERSION}-${env.VERSION}")
+                        publishCsmDockerImage(image: env.NAME, isStable: isStable, tag: "${env.SLE_VERSION}-${env.VERSION}-${env.TIMESTAMP}")
                     }
                 }
             }
