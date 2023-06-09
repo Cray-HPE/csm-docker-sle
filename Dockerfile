@@ -36,7 +36,7 @@ RUN --mount=type=secret,id=SLES_REGISTRATION_CODE SUSEConnect -r "$(cat /run/sec
 CMD ["/bin/bash"]
 FROM base as product
 
-RUN zypper refresh \
+RUN zypper --gpg-auto-import-keys refresh \
     && zypper --non-interactive install --no-recommends --force-resolution \
         autoconf \
         automake \
