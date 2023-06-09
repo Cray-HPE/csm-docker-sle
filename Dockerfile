@@ -47,7 +47,7 @@ RUN if [ "$TARGETARCH" = 'amd64' ]; then SUSEConnect -p "PackageHub/${SLE_VERSIO
 CMD ["/bin/bash"]
 FROM base as product
 
-RUN zypper refresh \
+RUN zypper refresh --gpg-auto-import-keys \
     && zypper --non-interactive install --no-recommends --force-resolution \
         autoconf \
         automake \
