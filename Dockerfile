@@ -48,10 +48,6 @@ FROM base as product
 
 RUN zypper --gpg-auto-import-keys refresh \
     && zypper --non-interactive install --no-recommends --force-resolution \
-        bash-completion
-
-RUN zypper --gpg-auto-import-keys refresh \
-    && zypper --non-interactive install --no-recommends --force-resolution \
         autoconf \
         automake \
         createrepo_c \
