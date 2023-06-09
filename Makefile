@@ -52,8 +52,7 @@ print:
 	@printf "%-20s: %s\n" Version $(VERSION)
 
 image: print
-	docker build --secret id=SLES_REGISTRATION_CODE --pull ${DOCKER_ARGS} --tag '${NAME}:${VERSION}' .
-	docker tag '${NAME}:${VERSION}' ${NAME}:${VERSION}-${TIMESTAMP}
-	docker tag '${NAME}:${VERSION}' ${NAME}:${SLE_VERSION}
-	docker tag '${NAME}:${VERSION}' ${NAME}:${SLE_VERSION}-${VERSION}
-	docker tag '${NAME}:${VERSION}' ${NAME}:${SLE_VERSION}-${VERSION}-${TIMESTAMP}
+	docker build --secret id=SLES_REGISTRATION_CODE --pull ${DOCKER_ARGS} --tag '${NAME}:latest' .
+	docker tag '${NAME}:latest' ${NAME}:${SLE_VERSION}
+	docker tag '${NAME}:latest' ${NAME}:${SLE_VERSION}-${VERSION}
+	docker tag '${NAME}:latest' ${NAME}:${SLE_VERSION}-${VERSION}-${TIMESTAMP}

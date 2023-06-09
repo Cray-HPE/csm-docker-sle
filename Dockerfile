@@ -34,7 +34,7 @@ RUN sed -i -E "s/^.*(rpm\.install\.excludedocs).*/\1 = yes/" /etc/zypp/zypp.conf
 CMD ["/bin/bash"]
 FROM base as product
 
-RUN zypper refresh \
+RUN zypper --gpg-auto-import-keys refresh \
     && zypper --non-interactive install --no-recommends --force-resolution \
         autoconf \
         automake \
