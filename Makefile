@@ -75,8 +75,6 @@ image: print
 		--pull \
 		--load \
 		-t '${NAME}:latest' \
-		-t '${NAME}:${VERSION}' \
-		-t '${NAME}:${VERSION}-${TIMESTAMP}' \
 		-t '${NAME}:${SLE_VERSION}' \
 		-t '${NAME}:${SLE_VERSION}-${VERSION}' \
 		-t '${NAME}:${SLE_VERSION}-${VERSION}-${TIMESTAMP}' \
