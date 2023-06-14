@@ -59,6 +59,7 @@ RUN zypper --gpg-auto-import-keys refresh \
         gdbm-devel \
         git \
         jq \
+        libcurl-devel \
         libopenssl-devel \
         libpcap-devel \
         libtool \
