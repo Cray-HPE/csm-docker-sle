@@ -74,6 +74,7 @@ RUN zypper --gpg-auto-import-keys refresh \
         rpm-build \
         rpmlint \
         rsync \
+        ruby2.5-rubygem-bundler \
         skopeo \
         sqlite3-devel \
         sudo \
