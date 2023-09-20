@@ -90,6 +90,6 @@ RUN zypper --gpg-auto-import-keys refresh \
         && suseconnect --cleanup
 
 # Install git-vendor
-RUN  curl -sSL https://git.io/vzN5m | sudo bash /dev/stdin
+RUN curl -sSL https://git.io/vzN5m | sudo bash /dev/stdin
 
 WORKDIR /build
