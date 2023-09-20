@@ -42,6 +42,8 @@ RUN --mount=type=secret,id=SLES_REGISTRATION_CODE suseconnect -r "$(cat /run/sec
 
 RUN if [ "$TARGETARCH" = 'arm64' ]; then SUSEConnect -p "PackageHub/${SLE_VERSION}/aarch64" ; fi
 RUN if [ "$TARGETARCH" = 'amd64' ]; then SUSEConnect -p "PackageHub/${SLE_VERSION}/x86_64" ; fi
+RUN if [ "$TARGETARCH" = 'arm64' ]; then SUSEConnect -p "sle-module-web-scripting/${SLE_VERSION}/aarch64" ; fi
+RUN if [ "$TARGETARCH" = 'amd64' ]; then SUSEConnect -p "sle-module-web-scripting/${SLE_VERSION}/x86_64" ; fi
 
 CMD ["/bin/bash"]
 FROM base as product
@@ -64,6 +66,7 @@ RUN zypper --gpg-auto-import-keys refresh \
         libtool \
         make \
         ncurses-devel \
+        npm18 \
         openssh \
         openssl \
         pam-devel \
@@ -71,6 +74,7 @@ RUN zypper --gpg-auto-import-keys refresh \
         rpm-build \
         rpmlint \
         rsync \
+        ruby2.5-rubygem-bundler \
         skopeo \
         sqlite3-devel \
         sudo \
@@ -86,6 +90,6 @@ RUN zypper --gpg-auto-import-keys refresh \
         && suseconnect --cleanup
 
 # Install git-vendor
-RUN  curl -sSL https://git.io/vzN5m | sudo bash /dev/stdin
+RUN curl -sSL https://git.io/vzN5m | sudo bash /dev/stdin
 
 WORKDIR /build
