@@ -75,7 +75,7 @@ RUN zypper --gpg-auto-import-keys refresh \
         rpm-build \
         rpmlint \
         rsync \
-        ruby2.5-rubygem-bundler \
+        ruby2.5 \
         skopeo \
         sqlite3-devel \
         sudo \
@@ -92,5 +92,8 @@ RUN zypper --gpg-auto-import-keys refresh \
 
 # Install git-vendor
 RUN curl -sSL https://git.io/vzN5m | sudo bash /dev/stdin
+
+# Install bundler (can't use Zypper, latest bundler is <v2).
+RUN gem install bundler:2.3.2
 
 WORKDIR /build
