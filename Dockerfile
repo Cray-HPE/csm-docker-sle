@@ -94,6 +94,8 @@ RUN zypper --gpg-auto-import-keys refresh \
 RUN curl -sSL https://git.io/vzN5m | bash /dev/stdin
 
 # Install bundler (can't use Zypper, latest bundler is <v2).
-RUN gem install bundler:2.3.2
+RUN gem install bundler:2.3.2 \
+    && ln -snf bundle.ruby2.5 /usr/bin/bundle \
+    && ln -snf bundler.ruby2.5 /usr/bin/bundler
 
 WORKDIR /build
