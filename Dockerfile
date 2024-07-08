@@ -31,7 +31,7 @@ ARG gid=10000
 ENV HOME /home/${user}
 RUN groupadd -g ${gid} ${group} && useradd -l -c "Jenkins USER" -d $HOME -u ${uid} -g ${gid} -m ${user}
 
-RUN zypper --non-interactive install --no-recommends --force-resolution SUSEConnect \
+RUN zypper --non-interactive install --no-recommends --force-resolution suseconnect-ng \
     && zypper clean -a
 
 RUN --mount=type=secret,id=SLES_REGISTRATION_CODE SUSEConnect -r "$(cat /run/secrets/SLES_REGISTRATION_CODE)"
@@ -47,7 +47,7 @@ RUN if [ "$TARGETARCH" = 'amd64' ]; then SUSEConnect -p "sle-module-development-
 RUN if [ "$TARGETARCH" = 'arm64' ]; then zypper modifyrepo --priority 99 SLE_BCI ; fi
 
 CMD ["/bin/bash"]
-FROM base as product
+FROM base AS product
 
 RUN zypper --gpg-auto-import-keys refresh \
     && zypper --non-interactive install --no-recommends --force-resolution \
