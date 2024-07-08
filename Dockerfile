@@ -52,6 +52,9 @@ RUN zypper --gpg-auto-import-keys refresh \
     && zypper --non-interactive install --no-recommends --force-resolution \
         autoconf \
         automake \
+        binutils \
+        binutils-devel \
+        binutils-gold \
         createrepo_c \
         curl \
         docker \
