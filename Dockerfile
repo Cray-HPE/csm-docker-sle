@@ -21,7 +21,7 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 #
-FROM registry.suse.com/suse/sle15:15.5 AS base
+FROM registry.suse.com/suse/sle15:15.6 AS base
 ARG SLE_VERSION
 ARG TARGETARCH
 ARG user=jenkins
@@ -29,7 +29,7 @@ ARG group=jenkins
 ARG uid=10000
 ARG gid=10000
 
-ENV HOME /home/${user}
+ENV HOME=/home/${user}
 RUN groupadd -g ${gid} ${group} && useradd -l -c "Jenkins USER" -d $HOME -u ${uid} -g ${gid} -m ${user}
 
 ENV LC_ALL=POSIX
@@ -46,7 +46,7 @@ RUN if [ "$TARGETARCH" = 'arm64' ]; then SUSEConnect -p "sle-module-web-scriptin
 RUN if [ "$TARGETARCH" = 'amd64' ]; then SUSEConnect -p "sle-module-web-scripting/${SLE_VERSION}/x86_64" ; fi
 
 CMD ["/bin/bash"]
-FROM base as product
+FROM base AS product
 
 RUN zypper --gpg-auto-import-keys refresh \
     && zypper --non-interactive install --no-recommends --force-resolution \
@@ -70,7 +70,7 @@ RUN zypper --gpg-auto-import-keys refresh \
         libtool \
         make \
         ncurses-devel \
-        npm18 \
+        npm20 \
         openssh \
         openssl \
         pam-devel \
