@@ -31,6 +31,7 @@ ARG gid=10000
 
 ENV HOME=/home/${user}
 RUN groupadd -g ${gid} ${group} && useradd -l -c "Jenkins USER" -d $HOME -u ${uid} -g ${gid} -m ${user}
+RUN groupadd ceph
 
 RUN sed -i -E "s/^.*(rpm\.install\.excludedocs).*/\1 = yes/" /etc/zypp/zypp.conf
 RUN zypper --non-interactive install --no-recommends --force-resolution suseconnect-ng \
