@@ -62,6 +62,7 @@ RUN zypper --gpg-auto-import-keys refresh \
         gcc-c++ \
         gdbm-devel \
         git \
+        glibc-locale-base \
         gnu_parallel \
         jq \
         libcurl-devel \
@@ -92,6 +93,8 @@ RUN zypper --gpg-auto-import-keys refresh \
         zlib-devel \
         && zypper clean -a \
         && suseconnect --cleanup
+
+ENV LANG=en_US.UTF-8
 
 # Install git-vendor
 RUN curl -sSL https://git.io/vzN5m | bash /dev/stdin
