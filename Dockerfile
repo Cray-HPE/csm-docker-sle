@@ -26,13 +26,13 @@ ARG group=jenkins
 ARG uid=10000
 ARG gid=10000
 
-ENV HOME /home/${user}
+ENV HOME=/home/${user}
 RUN groupadd -g ${gid} ${group} && useradd -l -c "Jenkins USER" -d $HOME -u ${uid} -g ${gid} -m ${user}
 
 RUN sed -i -E "s/^.*(rpm\.install\.excludedocs).*/\1 = yes/" /etc/zypp/zypp.conf
 
 CMD ["/bin/bash"]
-FROM base as product
+FROM base AS product
 
 RUN zypper --gpg-auto-import-keys refresh \
     && zypper --non-interactive install --no-recommends --force-resolution \
@@ -48,6 +48,7 @@ RUN zypper --gpg-auto-import-keys refresh \
         gcc-c++ \
         gdbm-devel \
         git \
+        glibc-locale-base \
         jq \
         libcurl-devel \
         libopenssl-devel \
@@ -72,5 +73,7 @@ RUN zypper --gpg-auto-import-keys refresh \
         xz-devel \
         zlib-devel \
         && zypper clean -a
+
+ENV LANG=en_US.UTF-8
 
 WORKDIR /build

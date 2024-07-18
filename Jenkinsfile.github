@@ -2,7 +2,7 @@
  *
  *  MIT License
  *
- *  (C) Copyright 2022 Hewlett Packard Enterprise Development LP
+ *  (C) Copyright 2022-2024 Hewlett Packard Enterprise Development LP
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a
  *  copy of this software and associated documentation files (the "Software"),
@@ -25,10 +25,17 @@
  */
 @Library('csm-shared-library@main') _
 
+// Docker registry to push to
+def docker_registry = 'artifactory.algol60.net/csm-docker'
+
 // Disable pr-merge builds; node-image pipeline doesn't use the PR images at all.
 if (env.BRANCH_NAME ==~ ~"^PR-\\d+") {
     currentBuild.result = 'SUCCESS'
     echo "Pull-Requests are not built for node-image-build; this is a no-op build."
+    return
+} else if (env.BRANCH_NAME ==~ ~"^dependabot/github_actions") {
+    currentBuild.result = 'SUCCESS'
+    echo "Dependabot GitHub action builds are skipped."
     return
 }
 
@@ -37,7 +44,7 @@ def promotionToken = ~"(main|maint\\/.*)"
 def isStable = env.BRANCH_NAME ==~ promotionToken ? true : false
 pipeline {
     agent {
-        label "metal-gcp-builder"
+        label "metal-gcp-builder-large"
     }
 
     options {
@@ -48,53 +55,79 @@ pipeline {
     }
 
     // Run every week on Sunday at 7 AM..
-    triggers{ cron('H 7 * * 0') }
+    triggers { cron('H 7 * * 0') }
 
     environment {
-        DOCKER_ARGS = getDockerBuildArgs(name: getRepoName(), description: 'A build environment.')
-        DOCKER_BUILDKIT = 1
         NAME = getRepoName()
-        TIMESTAMP = sh(returnStdout: true, script: "date '+%Y%m%d%H%M%S'").trim()
         SLE_VERSION = sh(returnStdout: true, script: "awk -F ':' '/^FROM/{print \$NF; exit}' Dockerfile | awk '{print \$1}'").trim()
+        DOCKER_BUILDKIT = 1
+        TIMESTAMP = sh(returnStdout: true, script: "date '+%Y%m%d%H%M%S'").trim()
         VERSION = "${GIT_COMMIT[0..6]}"
+        SLES_REGISTRATION_CODE = credentials('sles15-registration-code')
+        DOCKER_PLATFORMS = "linux/amd64"
+        DOCKER_BUILDER = sh(returnStdout: true, script: "docker buildx create --platform ${DOCKER_PLATFORMS} --name ${BUILD_CACHE}").trim()
+        BUILD_CACHE = "SLES${SLE_VERSION}-cache"
+        DOCKER_ARGS = getDockerBuildArgs(name: getRepoName(), description: 'A build environment.')
+        BUILD_ARGS = "--build-arg 'SLE_VERSION=${SLE_VERSION}' --secret id=SLES_REGISTRATION_CODE --builder ${BUILD_CACHE}"
     }
 
     stages {
 
-        stage('Build') {
+        stage('Docker setup') {
             steps {
                 withCredentials([
-                    string(credentialsId: 'sles15-registration-code', variable: 'SLES_REGISTRATION_CODE')
+                        usernamePassword(
+                                credentialsId: 'artifactory-algol60-publish',
+                                usernameVariable: 'DOCKER_USER',
+                                passwordVariable: 'DOCKER_TOKEN'
+                        )
                 ]) {
-                    sh "make image"
+                    script {
+                        sh "docker login ${docker_registry} --username \$DOCKER_USER --password \$DOCKER_TOKEN"
+                    }
                 }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh "env"
+                sh "make image"
             }
         }
 
         stage('Publish') {
             steps {
                 script {
-
                     // Only overwrite an image if this is a stable build.
                     if (isStable) {
                         /*
                         Publish these tags on stable:
-                            - Major.Minor                   (e.g. 15.2)
+                            - Major.Minor                   (e.g. 15.4)
                         */
-                        publishCsmDockerImage(image: env.NAME, isStable: isStable, tag: "${env.SLE_VERSION}")
+                        def stream = "${docker_registry}/stable/${env.NAME}"
+
+                        sh "docker buildx build ${BUILD_ARGS} ${DOCKER_ARGS} --platform ${DOCKER_PLATFORMS} --cache-from type=local,src=${BUILD_CACHE} --builder ${BUILD_CACHE} --push --tag \"${stream}:${SLE_VERSION}\" ."
+                        publishCsmDockerImage(image: env.NAME, push: false, isStable: isStable, tag: "${SLE_VERSION}")
 
                         // Only publish a latest when on main, never publish a latest for any beta or maint branches.
                         if (env.BRANCH_NAME == 'main') {
-                            publishCsmDockerImage(image: env.NAME, isStable: isStable, tag: "latest")
+                            sh "docker buildx build ${BUILD_ARGS} ${DOCKER_ARGS} --platform ${DOCKER_PLATFORMS} --cache-from type=local,src=${BUILD_CACHE} --builder ${BUILD_CACHE} --push --tag \"${stream}:latest\" ."
+                            publishCsmDockerImage(image: env.NAME, push: false, isStable: isStable, tag: "latest")
                         }
                     } else {
                         /*
                         Publish these tags on unstable:
-                            - Hash                          (e.g. 15.2-dhckj3)
-                            - Hash-Timestamp                (e.g. 15.2-dhckj3-20221017133121)
+                            - Hash                          (e.g. 15.4-dhckj3)
+                            - Hash-Timestamp                (e.g. 15.4-dhckj3-20221017133121)
                         */
-                        publishCsmDockerImage(image: env.NAME, isStable: isStable, tag: "${env.SLE_VERSION}-${env.VERSION}")
-                        publishCsmDockerImage(image: env.NAME, isStable: isStable, tag: "${env.SLE_VERSION}-${env.VERSION}-${env.TIMESTAMP}")
+                        def stream = "${docker_registry}/unstable/${env.NAME}"
+
+                        sh "docker buildx build ${BUILD_ARGS} ${DOCKER_ARGS} --platform ${DOCKER_PLATFORMS} --cache-from type=local,src=${BUILD_CACHE} --builder ${BUILD_CACHE} --push --tag \"${stream}:${env.SLE_VERSION}-${env.VERSION}\" ."
+                        publishCsmDockerImage(image: env.NAME, push: false, isStable: isStable, tag: "${env.SLE_VERSION}-${env.VERSION}")
+
+                        sh "docker buildx build ${BUILD_ARGS} ${DOCKER_ARGS} --platform ${DOCKER_PLATFORMS} --cache-from type=local,src=${BUILD_CACHE} --builder ${BUILD_CACHE} --push --tag \"${stream}:${env.SLE_VERSION}-${env.VERSION}-${env.TIMESTAMP}\" ."
+                        publishCsmDockerImage(image: env.NAME, push: false, isStable: isStable, tag: "${env.SLE_VERSION}-${env.VERSION}-${env.TIMESTAMP}")
                     }
                 }
             }
