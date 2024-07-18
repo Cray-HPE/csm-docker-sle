@@ -29,7 +29,7 @@ ARG group=jenkins
 ARG uid=10000
 ARG gid=10000
 
-ENV HOME /home/${user}
+ENV HOME=/home/${user}
 RUN groupadd -g ${gid} ${group} && useradd -l -c "Jenkins USER" -d $HOME -u ${uid} -g ${gid} -m ${user}
 
 ENV LC_ALL=POSIX
@@ -46,7 +46,7 @@ RUN if [ "$TARGETARCH" = 'arm64' ]; then SUSEConnect -p "sle-module-web-scriptin
 RUN if [ "$TARGETARCH" = 'amd64' ]; then SUSEConnect -p "sle-module-web-scripting/${SLE_VERSION}/x86_64" ; fi
 
 CMD ["/bin/bash"]
-FROM base as product
+FROM base AS product
 
 RUN zypper --gpg-auto-import-keys refresh \
     && zypper --non-interactive install --no-recommends --force-resolution \
