@@ -64,7 +64,7 @@ pipeline {
         TIMESTAMP = sh(returnStdout: true, script: "date '+%Y%m%d%H%M%S'").trim()
         VERSION = "${GIT_COMMIT[0..6]}"
         SLES_REGISTRATION_CODE = credentials('sles15-registration-code')
-        DOCKER_PLATFORMS = "linux/amd64,linux/arm64"
+        DOCKER_PLATFORMS = "linux/amd64"
         DOCKER_BUILDER = sh(returnStdout: true, script: "docker buildx create --platform ${DOCKER_PLATFORMS} --name ${BUILD_CACHE}").trim()
         BUILD_CACHE = "SLES${SLE_VERSION}-cache"
         DOCKER_ARGS = getDockerBuildArgs(name: getRepoName(), description: 'A build environment.')
