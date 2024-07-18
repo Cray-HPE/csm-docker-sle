@@ -28,7 +28,7 @@ ARG group=jenkins
 ARG uid=10000
 ARG gid=10000
 
-ENV HOME /home/${user}
+ENV HOME=/home/${user}
 RUN groupadd -g ${gid} ${group} && useradd -l -c "Jenkins USER" -d $HOME -u ${uid} -g ${gid} -m ${user}
 
 RUN zypper --non-interactive install --no-recommends --force-resolution suseconnect-ng \
@@ -63,6 +63,7 @@ RUN zypper --gpg-auto-import-keys refresh \
         gcc-c++ \
         gdbm-devel \
         git \
+        glibc-locale-base \
         jq \
         libcurl-devel \
         libopenssl-devel \
@@ -89,5 +90,7 @@ RUN zypper --gpg-auto-import-keys refresh \
         zlib-devel \
         && zypper clean -a \
         && SUSEConnect --cleanup
+
+ENV LANG=en_US.UTF-8
 
 WORKDIR /build
