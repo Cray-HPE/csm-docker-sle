@@ -38,7 +38,7 @@ export DOCKER_LOCAL_PLATFORM := $(shell docker version --format '{{.Server.Os}}/
 endif
 
 ifeq ($(DOCKER_PLATFORMS),)
-export DOCKER_PLATFORMS ?= 'linux/amd64,$(DOCKER_LOCAL_PLATFORM)'
+export DOCKER_PLATFORMS ?= 'linux/amd64,linux/arm64,$(DOCKER_LOCAL_PLATFORM)'
 endif
 
 ifeq ($(BUILD_CACHE),)
