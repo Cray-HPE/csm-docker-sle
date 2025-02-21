@@ -50,7 +50,7 @@ DOCKER_BUILDER := $(shell docker buildx create --platform $(DOCKER_LOCAL_PLATFOR
 endif
 
 ifeq ($(BUILD_ARGS),)
-export BUILD_ARGS ?= --build-arg 'SLE_VERSION=${SLE_VERSION}' --secret id=SLES_REGISTRATION_CODE --builder $(BUILD_CACHE)
+export BUILD_ARGS ?= "--build-arg 'SLE_VERSION=${SLE_VERSION}' --secret id=SLES_REGISTRATION_CODE_amd64 --secret id=SLES_REGISTRATION_CODE_arm64" --builder $(BUILD_CACHE)
 endif
 
 ifeq ($(TIMESTAMP),)
