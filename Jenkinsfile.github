@@ -39,8 +39,8 @@ if (env.BRANCH_NAME ==~ ~"^PR-\\d+") {
     return
 }
 
-// Only main or maint/* branches are stable.
-def promotionToken = ~"(main|maint\\/.*)"
+// Only main, maint/*, beta/* branches are stable.
+def promotionToken = ~"(main|maint\\/.*|beta\\/.*)"
 def isStable = env.BRANCH_NAME ==~ promotionToken ? true : false
 pipeline {
     agent {
