@@ -58,6 +58,7 @@ RUN zypper --gpg-auto-import-keys refresh \
         curl \
         docker \
         gcc \
+        gcc14 \
         gcc-c++ \
         gdbm-devel \
         git \
