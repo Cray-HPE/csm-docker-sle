@@ -43,6 +43,10 @@ RUN if [ "$TARGETARCH" = 'arm64' ]; then SUSEConnect -p "PackageHub/${SLE_VERSIO
 RUN if [ "$TARGETARCH" = 'amd64' ]; then SUSEConnect -p "PackageHub/${SLE_VERSION}/x86_64" ; fi
 RUN if [ "$TARGETARCH" = 'arm64' ]; then SUSEConnect -p "sle-module-web-scripting/${SLE_VERSION}/aarch64" ; fi
 RUN if [ "$TARGETARCH" = 'amd64' ]; then SUSEConnect -p "sle-module-web-scripting/${SLE_VERSION}/x86_64" ; fi
+RUN if [ "$TARGETARCH" = 'amd64' ]; then SUSEConnect -p "sle-module-desktop-applications/${SLE_VERSION}/x86_64" ; fi
+RUN if [ "$TARGETARCH" = 'arm64' ]; then SUSEConnect -p "sle-module-desktop-applications/${SLE_VERSION}/aarch64" ; fi
+RUN if [ "$TARGETARCH" = 'amd64' ]; then SUSEConnect -p "sle-module-development-tools/${SLE_VERSION}/x86_64" ; fi
+RUN if [ "$TARGETARCH" = 'arm64' ]; then SUSEConnect -p "sle-module-development-tools/${SLE_VERSION}/aarch64" ; fi
 
 CMD ["/bin/bash"]
 FROM base AS product
@@ -58,6 +62,7 @@ RUN zypper --gpg-auto-import-keys refresh \
         curl \
         docker \
         gcc \
+        gcc14 \
         gcc-c++ \
         gdbm-devel \
         git \
