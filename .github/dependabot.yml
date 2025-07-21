@@ -37,12 +37,3 @@ updates:
     labels:
       - "github_actions"
       - "dependencies"
-  - package-ecosystem: "docker"
-    # Look for a `Dockerfile` in the `root` directory
-    directory: "/"
-    # Check for updates once a week
-    schedule:
-      interval: "weekly"
-    labels:
-      - "docker"
-      - "dependencies"
