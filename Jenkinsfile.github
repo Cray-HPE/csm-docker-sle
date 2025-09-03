@@ -39,8 +39,9 @@ if (env.BRANCH_NAME ==~ ~"^PR-\\d+") {
     return
 }
 
-// Only main, maint/*, beta/* branches are stable.
-def promotionToken = ~"(main|maint\\/.*|beta\\/.*)"
+// Only main, maint/* branches are stable.
+def promotionToken = ~"(main|maint\\/.*)"
+
 def isStable = env.BRANCH_NAME ==~ promotionToken ? true : false
 pipeline {
     agent {
@@ -63,13 +64,12 @@ pipeline {
         DOCKER_BUILDKIT = 1
         TIMESTAMP = sh(returnStdout: true, script: "date '+%Y%m%d%H%M%S'").trim()
         VERSION = "${GIT_COMMIT[0..6]}"
-        SLES_REGISTRATION_CODE_amd64 = credentials('sles-beta-registration-code-x86_64')
-        SLES_REGISTRATION_CODE_arm64 = credentials('sles-beta-registration-code-aarch64')
+        SLES_REGISTRATION_CODE = credentials('sles15-registration-code')
         DOCKER_PLATFORMS = "linux/amd64,linux/arm64"
         DOCKER_BUILDER = sh(returnStdout: true, script: "docker buildx create --platform ${DOCKER_PLATFORMS} --name ${BUILD_CACHE}").trim()
         BUILD_CACHE = "SLES${SLE_VERSION}-cache"
         DOCKER_ARGS = getDockerBuildArgs(name: getRepoName(), description: 'A build environment.')
-        BUILD_ARGS = "--build-arg 'SLE_VERSION=${SLE_VERSION}' --secret id=SLES_REGISTRATION_CODE_amd64 --secret id=SLES_REGISTRATION_CODE_arm64 --builder ${BUILD_CACHE}"
+        BUILD_ARGS = "--build-arg 'SLE_VERSION=${SLE_VERSION}' --secret id=SLES_REGISTRATION_CODE --builder ${BUILD_CACHE}"
     }
 
     stages {
