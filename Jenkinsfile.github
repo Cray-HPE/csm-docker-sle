@@ -55,8 +55,10 @@ pipeline {
         timestamps()
     }
 
-    // Run every week on Sunday at 7 AM..
-    triggers { cron('H 7 * * 0') }
+    // Run every week on Sunday at 7 AM on main and maint/* branches only.
+    triggers {
+        cron(env.BRANCH_NAME ==~ ~"(main|maint\\/.*)" ? 'H 7 * * 0' : '')
+    }
 
     environment {
         NAME = getRepoName()
