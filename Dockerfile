@@ -35,12 +35,13 @@ CMD ["/bin/bash"]
 FROM base AS product
 
 RUN zypper --gpg-auto-import-keys refresh \
-    && zypper --non-interactive install --no-recommends --force-resolution \
+    && zypper --non-interactive install --no-recommends --force-resolution --allow-vendor-change \
+        binutils-gold \
+    && zypper --non-interactive install --no-recommends --force-resolution --allow-vendor-change \
         autoconf \
         automake \
         binutils \
         binutils-devel \
-        binutils-gold \
         createrepo_c \
         curl \
         docker \
